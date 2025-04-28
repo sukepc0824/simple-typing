@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タイピングゲーム</title>
+    <link rel="stylesheet" href="https://unpkg.com/modern-css-reset/dist/reset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Noto+Sans+JP&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            font-family: "Geist Mono", "Noto Sans JP";
+        }
+
+        body {
+            background-color: #f6f6f6;
+        }
+
+        .type {
+            display: flex;
+            font-size: 29px;
+        }
+
+        p.key_candidate {
+            font-weight: 500;
+        }
+
+        p.done {
+            font-weight: 100;
+        }
+
+        h1 {
+            font-feature-settings: "kern";
+            font-size: 48px;
+            font-weight: 400;
+        }
+
+        main {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            flex-direction: column;
+        }
+
+        section.modal {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: #f6f6f6;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        section.clear {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: #f6f6f6;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            flex-direction: column;
+            gap: 0px;
+            font-size: 24px;
+        }
+
+        section.clear p.score {
+            font-size: 100px;
+        }
+
+        section.modal p {
+            font-size: 42px;
+        }
+
+        button.start {
+            font-size: 24px;
+            background-color: #222;
+            color: white;
+            padding: 8px 14px;
+            width: 180px;
+            border-radius: 1000px;
+        }
+
+        p.timer {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            opacity: 0.5;
+            font-size: 32px;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="modal">
+        <p>情報班タイピング</p>
+        <button class="start" onclick="start()">開始 →</button>
+    </section>
+    <section class="clear" style="display: none;">
+        <p>得点</p>
+        <p class="score">100</p>
+        <p>秒速:<span class="a"></span>タイプ</p>
+        <p>正答率:<span class="b"></span>%</p>
+    </section>
+    <main>
+        <p class="timer"></p>
+        <h1></h1>
+        <div class="type">
+            <p class="done"></p>
+            <p class="key_candidate"></p>
+        </div>
+    </main>
+    <script src="./keygraph.js"></script>
+    <script>
+        let timer;
+        let timeLeft = 120; // 3 minutes in seconds
+        let miss = 0;
+        let type_count = 0;
+
+        function start() {
+            document.querySelector("section.modal").style.display = "none";
+            startTimer();
+        }
+
+        function clear() {
+            document.querySelector("section.clear").style.display = "flex";
+            document.querySelector("p.score").innerHTML = (type_count - (miss * 4) ** 1.24).toFixed(0)
+            document.querySelector("section.clear span.a").innerHTML = (type_count / 120).toFixed(2)
+            document.querySelector("section.clear span.b").innerHTML = ((type_count / miss) * 100).toFixed(2)
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                console.log(type_count - (miss * 4))
+                document.querySelector("p.timer").innerHTML = timeLeft
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    clear()
+                }
+            }, 1000);
+        }
+        let words = [{
+            display: "いい天気ですね",
+            hiragana: "いいてんきですね"
+        }, {
+            display: "苦しき稽古を積みし者",
+            hiragana: "くるしきけいこをつみしもの"
+        }, {
+            display: "pythonは読みやすい",
+            hiragana: "pythonはよみやすい"
+        }, {
+            display: "科学部情報班",
+            hiragana: "かがくぶじょうほうはん"
+        }, {
+            display: "海地獄",
+            hiragana: "うみじごく"
+        }, {
+            display: "こんばんは",
+            hiragana: "こんばんは"
+        }, {
+            display: "競技プログラミïング",
+            hiragana: "きょうぎぷろぐらみんぐ"
+        }, { display: "プログラミングは楽しい", hiragana: "ぷろぐらみんぐはたのしい" },
+        { display: "人工知能の未来", hiragana: "じんこうちのうのみらい" },
+        { display: "データサイエンス", hiragana: "でーたさいえんす" },
+        { display: "アルゴリズム設計", hiragana: "あるごりずむせっけい" },
+        { display: "コンピュータビジョン", hiragana: "こんぴゅーたびじょん" },
+        { display: "機械学習モデル", hiragana: "きかいがくしゅうもでる" },
+        { display: "クラウドコンピューティング", hiragana: "くらうどこんぴゅーてぃんぐ" },
+        { display: "ネットワークセキュリティ", hiragana: "ねっとわーくせきゅりてぃ" },
+        { display: "オブジェクト指向", hiragana: "おぶじぇくとしこう" },
+        { display: "デバッグ作業", hiragana: "でばっぐさぎょう" },
+        { display: "コードレビュー", hiragana: "こーどれびゅー" },
+        { display: "バージョン管理", hiragana: "ばーじょんかんり" },
+        { display: "データベース管理", hiragana: "でーたべーすかんり" },
+        { display: "フロントエンド開発", hiragana: "ふろんとえんどかいはつ" },
+        { display: "バックエンド開発", hiragana: "ばっくえんどかいはつ" },
+        { display: "ユーザーインターフェース", hiragana: "ゆーざーいんたーふぇーす" },
+        { display: "ユーザーエクスペリエンス", hiragana: "ゆーざーえくすぺりえんす" },
+        { display: "アジャイル開発", hiragana: "あじゃいるかいはつ" },
+        { display: "スクラムマスター", hiragana: "すくらむますたー" },
+        { display: "プロジェクト管理", hiragana: "ぷろじぇくとかんり" },
+        { display: "テスト駆動開発", hiragana: "てすとくどうかいはつ" },
+        { display: "継続的インテグレーション", hiragana: "けいぞくてきいんてぐれーしょん" },
+        { display: "継続的デリバリー", hiragana: "けいぞくてきでりばりー" },
+        { display: "モバイルアプリ開発", hiragana: "もばいるあぷりかいはつ" },
+        { display: "ゲームプログラミング", hiragana: "げーむぷろぐらみんぐ" },
+        { display: "仮想現実", hiragana: "かそうげんじつ" },
+        { display: "拡張現実", hiragana: "かくちょうげんじつ" },
+        { display: "ブロックチェーン技術", hiragana: "ぶろっくちぇーんぎじゅつ" },
+        { display: "量子コンピューティング", hiragana: "りょうしこんぴゅーてぃんぐ" },
+        { display: "自然言語処理", hiragana: "しぜんげんごしょり" },
+        { display: "音声認識技術", hiragana: "おんせいにんしきぎじゅつ" },
+        { display: "画像処理アルゴリズム", hiragana: "がぞうしょりあるごりずむ" },
+        { display: "ビッグデータ解析", hiragana: "びっぐでーたかいせき" },
+        { display: "ディープラーニング", hiragana: "でぃーぷらーにんぐ" },
+        { display: "強化学習", hiragana: "きょうかがくしゅう" },
+        { display: "データ可視化", hiragana: "でーたかしか" }]
+
+
+
+        function build() {
+            const random_index = Math.floor(Math.random() * words.length)
+            const selected = words[random_index]
+            words.splice(random_index, 1)
+            keygraph.build(selected.hiragana);
+            document.querySelector("h1").innerText = selected.display
+        }
+        const disp = () => {
+            document.querySelector("p.key_candidate").innerText = keygraph.key_candidate();
+            document.querySelector("p.done").innerText = keygraph.key_done();
+        }
+
+        // keydownのイベント処理
+        document.body.addEventListener("keydown", e => {
+            console.log(keygraph.key_candidate())
+            if (!keygraph.next(e.key)) {
+                miss++
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                gainNode.gain.value = 0.4; // Adjust volume
+                oscillator.type = 'triangle'; // Triangle wave for a different sound
+                oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // Frequency in Hz (C5 note)
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.start();
+                setTimeout(() => oscillator.stop(), 90);
+                // 入力がタイピングするキーと一致している場合
+            } else {
+                type_count++
+            }
+            if (keygraph.is_finished()) {
+                build()
+            }
+            disp();
+        });
+
+        build()
+        disp();
+    </script>
+</body>
+
+</html>
