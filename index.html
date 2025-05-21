@@ -137,7 +137,7 @@
             document.querySelector("section.clear").style.display = "flex";
             document.querySelector("p.score").innerHTML = type_count - (miss * 4)
             document.querySelector("section.clear span.a").innerHTML = (type_count / 120)
-            document.querySelector("section.clear span.b").innerHTML = ((type_count / miss) * 100)
+            document.querySelector("section.clear span.b").innerHTML = 100 -((miss / type_count) * 100)
         }
 
         function startTimer() {
